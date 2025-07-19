@@ -1,6 +1,5 @@
 #!/bin/bash
-echo "Hello, world!"
+echo "Hello from Jenkins! Build triggered by commit: $(git rev-parse --short HEAD)"
 echo "Current date: $(date)"
-echo "Build triggered by commit: $GIT_COMMIT"
 chmod +x hello.sh
 
