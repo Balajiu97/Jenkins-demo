@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     triggers {
-        pollSCM('* * * * *') // Temporary polling for testing
-        // githubPush() // Uncomment after webhook setup
+        pollSCM('H/5 * * * *') // Check every 5 minutes (temporary)
+        // githubPush() // Uncomment after webhook is working
     }
     
     stages {
@@ -17,20 +17,15 @@ pipeline {
     
     post {
         always {
-            script {
-                // Safe way to get build log without getRawBuild()
-                def log = currentBuild.rawBuild.getLog(100).join("\n")
-                emailext (
-                    subject: "Build ${currentBuild.result}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                    body: """
-                    <p>Build triggered by commit: ${env.GIT_COMMIT}</p>
-                    <p>Console output: <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
-                    <pre>${log}</pre>
-                    """,
-                    to: 'yuvabala355@gmail.com',
-                    mimeType: 'text/html'
-                )
-            }
+            emailext (
+                subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """<p>Build Status: <strong>${currentBuild.currentResult}</strong></p>
+                       <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                       <p>Commit: ${env.GIT_COMMIT ?: 'N/A'}</p>
+                       <p>Triggered by: ${currentBuild.getBuildCauses()[0].shortDescription}</p>""",
+                to: 'yuvabala355@gmail.com',
+                mimeType: 'text/html'
+            )
         }
     }
 }
